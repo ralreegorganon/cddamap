@@ -1,0 +1,25 @@
+version: '3'
+services:
+  db:
+    image: mdillon/postgis:10-alpine
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    ports:
+      - ${DB_PORT_MIGRATION}:5432
+    expose:
+      - 5432
+  cddamap:
+    restart: always
+    build: .
+    environment:
+      - CDDAMAP_CONNECTION_STRING=${CDDAMAP_CONNECTION_STRING}
+    command: cddamap -tileRoot /tiles
+    volumes:
+      - ./tiles:/tiles
+    depends_on:
+      - db
+    ports: 
+      - 8002:8989 
+    expose:
+     - 8989

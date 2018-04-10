@@ -1,0 +1,3 @@
+# cddamap
+
+Mapping the Cataclysm, one world at a time...

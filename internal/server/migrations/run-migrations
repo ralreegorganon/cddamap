@@ -1,0 +1,2 @@
+#!/bin/bash
+migrate -path . -database "$CDDAMAP_CONNECTION_STRING" up

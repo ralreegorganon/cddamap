@@ -1,0 +1,9 @@
+vendor
+cmd/cddamapgen/cddamapgen
+cmd/cddamap/cddamap
+cmd/cddamaptiler/cddamaptiler
+images/cddamap/bin
+images/cddamap/migrations
+images/cddamap/tiles
+tiles
+*.exe

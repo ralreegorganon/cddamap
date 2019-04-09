@@ -21,7 +21,7 @@ type overmapTerrain struct {
 	Type       string   `json:"type"`
 	Abstract   string   `json:"abstract"`
 	Name       string   `json:"name"`
-	Sym        int      `json:"sym"`
+	Sym        string   `json:"sym"`
 	Color      string   `json:"color"`
 	CopyFrom   string   `json:"copy-from"`
 	SeeCost    int      `json:"see_cost"`
@@ -79,7 +79,7 @@ func (s inLoadOrder) Less(i, j int) bool {
 	return c1 < c2
 }
 
-func indexOf(slice []int, item int) int {
+func indexOf(slice []string, item string) int {
 	for i := range slice {
 		if slice[i] == item {
 			return i
@@ -106,23 +106,23 @@ var linearSuffixes = []string{
 	"_esw",
 	"_nesw"}
 
-var linearSuffixSymbols = map[string]int{
-	"_isolated":  0,
-	"_end_south": 4194424,
-	"_end_west":  4194417,
-	"_ne":        4194413,
-	"_end_north": 4194424,
-	"_ns":        4194424,
-	"_es":        4194412,
-	"_nes":       4194420,
-	"_end_east":  4194417,
-	"_wn":        4194410,
-	"_ew":        4194417,
-	"_new":       4194422,
-	"_sw":        4194411,
-	"_nsw":       4194421,
-	"_esw":       4194423,
-	"_nesw":      4194414,
+var linearSuffixSymbols = map[string]string{
+	"_isolated":  "",
+	"_end_south": "\u2502",
+	"_end_west":  "\u2500",
+	"_ne":        "\u2514",
+	"_end_north": "\u2502",
+	"_ns":        "\u2502",
+	"_es":        "\u250c",
+	"_nes":       "\u251c",
+	"_end_east":  "\u2500",
+	"_wn":        "\u2518",
+	"_ew":        "\u2500",
+	"_new":       "\u2534",
+	"_sw":        "\u2510",
+	"_nsw":       "\u2524",
+	"_esw":       "\u252c",
+	"_nesw":      "\u253c",
 }
 
 var rotationSuffixes = []string{
@@ -131,9 +131,7 @@ var rotationSuffixes = []string{
 	"_south",
 	"_west"}
 
-var symbols map[int]string
-
-var rotations [][]int
+var rotations [][]string
 
 type ColorPair struct {
 	FG color.RGBA
@@ -143,29 +141,11 @@ type ColorPair struct {
 var colors map[string]ColorPair
 
 func init() {
-	symbols = map[int]string{
-		4194424: "\u2502",
-		4194417: "\u2500",
-		4194413: "\u2514",
-		4194412: "\u250c",
-		4194411: "\u2510",
-		4194410: "\u2518",
-		4194420: "\u251c",
-		4194422: "\u2534",
-		4194421: "\u2524",
-		4194423: "\u252c",
-		4194414: "\u253c",
-	}
-
-	for i := 0; i < 128; i++ {
-		symbols[i] = string(i)
-	}
-
-	rotations = make([][]int, 0)
-	rotations = append(rotations, []int{60, 94, 62, 118})
-	rotations = append(rotations, []int{4194410, 4194413, 4194412, 4194411})
-	rotations = append(rotations, []int{4194417, 4194424, 4194417, 4194424})
-	rotations = append(rotations, []int{4194420, 4194423, 4194421, 4194422})
+	rotations = make([][]string, 0)
+	rotations = append(rotations, []string{"<", "^", ">", "v"})
+	rotations = append(rotations, []string{"\u2518", "\u2514", "\u250c", "\u2510"})
+	rotations = append(rotations, []string{"\u2500", "\u2502", "\u2500", "\u2502"})
+	rotations = append(rotations, []string{"\u251c", "\u252c", "\u2524", "\u2534"})
 
 	white := color.RGBA{150, 150, 150, 255}
 	black := color.RGBA{0, 0, 0, 255}
@@ -246,9 +226,7 @@ func (o Overmap) Exists(id string) bool {
 
 func (o Overmap) Symbol(id string) string {
 	if t, tok := o.built[id]; tok {
-		if s, sok := symbols[t.Sym]; sok {
-			return s
-		}
+		return t.Sym
 	}
 	return "?"
 }

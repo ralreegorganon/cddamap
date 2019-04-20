@@ -29,9 +29,6 @@ CDDAMAP_CONNECTION_STRING_MIGRATION_DOCKER := postgres://$(DB_USER):$(DB_PASSWOR
 
 CDDAMAP_MIGRATIONS_PATH := file://internal/server/migrations
 
-dep:
-	dep ensure
-
 build:
 	go build -i -v -o images/$(BINARY)/bin/$(ARCH)/$(BINARY) $(GOBUILD_VERSION_ARGS) $(MAIN_PKG)
 

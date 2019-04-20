@@ -30,6 +30,11 @@ type overmapTerrain struct {
 	Flags      []string `json:"flags"`
 	Spawns     spawns   `json:"spawns"`
 	MapGen     []mapGen `json:"mapgen"`
+	Delete     deleteit `json:"delete"`
+}
+
+type deleteit struct {
+	Flags []string `json:"flags"`
 }
 
 type spawns struct {
@@ -445,20 +450,31 @@ func buildTemplates(templates map[string]overmapTerrain) (map[string]overmapTerr
 			rotate := true
 
 			if b.Flags != nil {
+				flagsMap := make(map[string]bool)
 				for _, f := range b.Flags {
-					if f == "NO_ROTATE" {
-						rotate = false
-					} else if f == "LINEAR" {
-						for _, suffix := range linearSuffixes {
-							bs := overmapTerrain{}
-							if err := mergo.Merge(&bs, b, mergo.WithOverride); err != nil {
-								return built, err
-							}
-							bs.ID = b.ID + suffix
-							bs.Sym = linearSuffixSymbols[suffix]
-							b.internalID = save.HashTerrainID(b.ID)
-							built[bs.ID] = bs
+					flagsMap[f] = true
+				}
+
+				if b.Delete.Flags != nil {
+					for _, f := range b.Delete.Flags {
+						delete(flagsMap, f)
+					}
+				}
+
+				if _, ok := flagsMap["NO_ROTATE"]; ok {
+					rotate = false
+				}
+
+				if _, ok := flagsMap["LINEAR"]; ok {
+					for _, suffix := range linearSuffixes {
+						bs := overmapTerrain{}
+						if err := mergo.Merge(&bs, b, mergo.WithOverride); err != nil {
+							return built, err
 						}
+						bs.ID = b.ID + suffix
+						bs.Sym = linearSuffixSymbols[suffix]
+						b.internalID = save.HashTerrainID(b.ID)
+						built[bs.ID] = bs
 					}
 				}
 			}

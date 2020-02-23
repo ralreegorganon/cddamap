@@ -19,14 +19,18 @@ import (
 var dpi = 72.0
 var size = 24.0
 var spacing = 1.0
-var cellWidth = 21.3594
+
+// var cellWidth = 21.3594
+var cellWidth = 14.0625
 var cellHeight = 24
 var cellOverprintWidth = 24
 var mapFont *truetype.Font
 var colorCache map[color.RGBA]*image.Uniform
 
 func init() {
-	fontBytes, err := Asset("Topaz-8.ttf")
+	// fontBytes, err := Asset("Topaz-8.ttf")
+	fontBytes, err := Asset("CascadiaMono.ttf")
+
 	if err != nil {
 		panic(err)
 	}
@@ -109,7 +113,13 @@ func terrainToImage(e *png.Encoder, fullImage *image.RGBA, c *freetype.Context, 
 
 	draw.Draw(fullImage, fullImage.Bounds(), image.Black, image.ZP, draw.Src)
 
+	opts := truetype.Options{}
+	opts.Size = size
+	face := truetype.NewFace(mapFont, &opts)
 	pt := freetype.Pt(0, 0+int(c.PointToFixed(size)>>6))
+	foo, _ := face.GlyphAdvance([]rune("F")[0])
+	fmt.Println(foo.String())
+
 	for _, r := range l.TerrainRows {
 		for _, k := range r.TerrainCellKeys {
 			cell := w.TerrainCellLookup[k]
@@ -127,7 +137,15 @@ func terrainToImage(e *png.Encoder, fullImage *image.RGBA, c *freetype.Context, 
 
 			draw.Draw(fullImage, image.Rect(int(pt.X>>6), int(pt.Y>>6), int(pt.X>>6)+cellOverprintWidth, int(pt.Y>>6)-cellHeight), bg, image.ZP, draw.Src)
 			c.SetSrc(fg)
-			c.DrawString(cell.Symbol, pt)
+
+			awidth, _ := face.GlyphAdvance([]rune(cell.Symbol)[0])
+			iwidthf := int(float64(awidth) / 64)
+
+			draw := pt
+			draw.X += c.PointToFixed(float64(cellOverprintWidth/2 - iwidthf/2))
+			draw.Y -= c.PointToFixed(5)
+
+			c.DrawString(cell.Symbol, draw)
 			pt.X += c.PointToFixed(float64(cellOverprintWidth))
 		}
 		pt.X = c.PointToFixed(0)

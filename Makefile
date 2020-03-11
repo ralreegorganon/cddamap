@@ -9,7 +9,7 @@ else
 			ARCH = darwin
     endif
 endif
-REPO_VERSION := $$(git describe --abbrev=0 --tags)
+REPO_VERSION := $$(git describe --abbrev=0 --tags --always)
 BUILD_DATE := $$(date +%Y-%m-%d-%H:%M)
 GIT_HASH := $$(git rev-parse --short HEAD)
 GOBUILD_VERSION_ARGS := -ldflags "-s -X main.Version=$(REPO_VERSION) -X main.GitCommit=$(GIT_HASH) -X main.BuildDate=$(BUILD_DATE)"

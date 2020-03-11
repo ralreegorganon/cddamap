@@ -28,6 +28,7 @@ var opts struct {
 	Cities             bool   `short:"C" long:"cities" description:"Render city names"`
 	SkipEmpty          bool   `short:"k" long:"skipempty" description:"Skip rendering empty layers"`
 	Overmap            string `short:"O" long:"overmap" description:"Overmap filter to limit included overmaps"`
+	LandUseCode        bool   `short:"U" long:"landusecode" description:"Symbolize by land use code"`
 }
 
 func init() {
@@ -65,7 +66,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	w, err := world.Build(o, s)
+	w, err := world.Build(o, s, opts.LandUseCode)
 	if err != nil {
 		log.Fatal(err)
 	}

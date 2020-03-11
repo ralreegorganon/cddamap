@@ -25,6 +25,7 @@ Application Options:
   -C, --cities            Render city names
   -k, --skipempty         Skip rendering empty layers
   -O, --overmap=          Overmap filter to limit included overmaps
+  -U, --landusecode       Symbolize by land use code
 
 Help Options:
   -h, --help              Show this help message

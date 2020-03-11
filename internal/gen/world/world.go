@@ -89,7 +89,7 @@ type City struct {
 	Size int
 }
 
-func Build(m metadata.Overmap, s save.Save) (World, error) {
+func Build(m metadata.Overmap, s save.Save, symbolizeByLandUseCode bool) (World, error) {
 
 	terrainCellLookup := make(map[uint32]TerrainCell)
 
@@ -108,7 +108,7 @@ func Build(m metadata.Overmap, s save.Save) (World, error) {
 		},
 	}
 
-	terrainLayers := buildTerrainLayers(m, s, terrainCellLookup)
+	terrainLayers := buildTerrainLayers(m, s, terrainCellLookup, symbolizeByLandUseCode)
 	characterSeenLayers := buildCharacterSeenLayers(m, s)
 	cityLayer := buildCityLayer(m, s)
 
@@ -280,7 +280,7 @@ func buildCharacterSeenLayers(m metadata.Overmap, s save.Save) map[string][]Seen
 	return seen
 }
 
-func buildTerrainLayers(m metadata.Overmap, s save.Save, tcl map[uint32]TerrainCell) []TerrainLayer {
+func buildTerrainLayers(m metadata.Overmap, s save.Save, tcl map[uint32]TerrainCell, symbolizeByLandUseCode bool) []TerrainLayer {
 	missingTerrain := make(map[string]int)
 
 	for _, c := range s.Overmap.Chunks {
@@ -314,8 +314,8 @@ func buildTerrainLayers(m metadata.Overmap, s save.Save, tcl map[uint32]TerrainC
 				h := save.HashTerrainID(e.OvermapTerrainID)
 				_, ok := tcl[h]
 				if !ok {
-					s := m.Symbol(e.OvermapTerrainID)
-					cfg, cbg := m.Color(e.OvermapTerrainID)
+					s := m.Symbol(e.OvermapTerrainID, symbolizeByLandUseCode)
+					cfg, cbg := m.Color(e.OvermapTerrainID, symbolizeByLandUseCode)
 					n := m.Name(e.OvermapTerrainID)
 					tc := TerrainCell{
 						ID:      e.OvermapTerrainID,
@@ -336,7 +336,7 @@ func buildTerrainLayers(m metadata.Overmap, s save.Save, tcl map[uint32]TerrainC
 		}
 	}
 
-	dfg, dbg := m.Color("default")
+	dfg, dbg := m.Color("default", symbolizeByLandUseCode)
 	tc := TerrainCell{
 		ID:      "",
 		Symbol:  " ",

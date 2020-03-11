@@ -3,6 +3,7 @@ package metadata
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"image/color"
 	"io/ioutil"
 	"os"
@@ -16,21 +17,21 @@ import (
 )
 
 type overmapTerrain struct {
-	internalID uint32
-	ID         string   `json:"id"`
-	Type       string   `json:"type"`
-	Abstract   string   `json:"abstract"`
-	Name       string   `json:"name"`
-	Sym        string   `json:"sym"`
-	Color      string   `json:"color"`
-	CopyFrom   string   `json:"copy-from"`
-	SeeCost    int      `json:"see_cost"`
-	Extras     string   `json:"extras"`
-	MonDensity int      `json:"mondensity"`
-	Flags      []string `json:"flags"`
-	Spawns     spawns   `json:"spawns"`
-	MapGen     []mapGen `json:"mapgen"`
-	Delete     deleteit `json:"delete"`
+	internalID  uint32
+	ID          string   `json:"id"`
+	Type        string   `json:"type"`
+	Abstract    string   `json:"abstract"`
+	Name        string   `json:"name"`
+	Sym         string   `json:"sym"`
+	Color       string   `json:"color"`
+	LandUseCode string   `json:"land_use_code"`
+	CopyFrom    string   `json:"copy-from"`
+	SeeCost     int      `json:"see_cost"`
+	Extras      string   `json:"extras"`
+	MonDensity  int      `json:"mondensity"`
+	Flags       []string `json:"flags"`
+	Spawns      spawns   `json:"spawns"`
+	Delete      deleteit `json:"delete"`
 }
 
 type deleteit struct {
@@ -43,26 +44,19 @@ type spawns struct {
 	Chance     int    `json:"chance"`
 }
 
-type mapGen struct {
-	Method string `json:"method"`
-	Name   string `json:"name"`
-	Object object `json:"object"`
-}
-
-type object struct {
-	PlaceItems []placeItem `json:"place_items"`
-}
-
-type placeItem struct {
-	Item   string `json:"item"`
-	Chance int    `json:"chance"`
-}
-
 type modInfo struct {
 	Ident string `json:"ident"`
 }
 
+type overmapLandUseCode struct {
+	ID    string `json:"id"`
+	Type  string `json:"type"`
+	Sym   string `json:"sym"`
+	Color string `json:"color"`
+}
+
 const overmapTerrainTypeID = "overmap_terrain"
+const overmapLandUseCodeTypeID = "overmap_land_use_code"
 
 type inLoadOrder []string
 
@@ -210,11 +204,15 @@ func init() {
 	colors["yellow"] = ColorPair{FG: yellow, BG: black}
 	colors["yellow_cyan"] = ColorPair{FG: yellow, BG: cyan}
 	colors["yellow_magenta"] = ColorPair{FG: yellow, BG: magenta}
+	colors["green_yellow"] = ColorPair{FG: green, BG: yellow}
+	colors["green_cyan"] = ColorPair{FG: green, BG: cyan}
+	colors["light_green_green"] = ColorPair{FG: lightGreen, BG: green}
 	colors["unset"] = ColorPair{FG: white, BG: black}
 }
 
 type Overmap struct {
-	built map[string]overmapTerrain
+	built        map[string]overmapTerrain
+	landusecodes map[string]overmapLandUseCode
 }
 
 func (o Overmap) UID(id string) uint32 {
@@ -229,19 +227,34 @@ func (o Overmap) Exists(id string) bool {
 	return ok
 }
 
-func (o Overmap) Symbol(id string) string {
+func (o Overmap) Symbol(id string, landUseCode bool) string {
 	if t, tok := o.built[id]; tok {
-		return t.Sym
+		if !landUseCode {
+			return t.Sym
+		}
+		if luc, lucok := o.landusecodes[t.LandUseCode]; lucok {
+			return luc.Sym
+		}
 	}
 	return "?"
 }
 
-func (o Overmap) Color(id string) (color.RGBA, color.RGBA) {
+func (o Overmap) Color(id string, landUseCode bool) (color.RGBA, color.RGBA) {
 	if c, tok := o.built[id]; tok {
-		if cp, ok := colors[c.Color]; ok {
-			return cp.FG, cp.BG
+		if !landUseCode {
+			if cp, ok := colors[c.Color]; ok {
+				return cp.FG, cp.BG
+			}
+			fmt.Printf("missing terrain color for: %#v\n", c.Color)
+		}
+		if luc, lucok := o.landusecodes[c.LandUseCode]; lucok {
+			if cp, ok := colors[luc.Color]; ok {
+				return cp.FG, cp.BG
+			}
+			fmt.Printf("missing landusecode color for: %#v\n", luc.Color)
 		}
 	}
+
 	unset := colors["unset"]
 	return unset.FG, unset.BG
 }
@@ -264,8 +277,9 @@ func Build(save save.Save, gameRoot string) (Overmap, error) {
 	}
 
 	templates := make(map[string]overmapTerrain)
+	landusecodes := make(map[string]overmapLandUseCode)
 	for _, f := range files {
-		err = loadTemplates(f, templates)
+		err = loadTemplates(f, templates, landusecodes)
 		if err != nil {
 			return o, err
 		}
@@ -277,24 +291,9 @@ func Build(save save.Save, gameRoot string) (Overmap, error) {
 	}
 
 	o = Overmap{
-		built: built,
+		built:        built,
+		landusecodes: landusecodes,
 	}
-
-	/*
-		for k, v := range built {
-			if v.MapGen != nil {
-				fmt.Printf("%v:\n", k)
-				for _, mm := range v.MapGen {
-					if mm.Method == "json" {
-						for _, o := range mm.Object.PlaceItems {
-							fmt.Printf("\t%3d %v\n", o.Chance, o.Item)
-						}
-					}
-				}
-				fmt.Println()
-			}
-		}
-	*/
 
 	return o, nil
 }
@@ -367,7 +366,7 @@ func overmapTerrainSourceFiles(jsonRoot, modsRoot string, saveMods []string) ([]
 	return files, nil
 }
 
-func loadTemplates(file string, templates map[string]overmapTerrain) error {
+func loadTemplates(file string, templates map[string]overmapTerrain, landusecodes map[string]overmapLandUseCode) error {
 	f, err := os.Open(file)
 	if err != nil {
 		return err
@@ -379,7 +378,8 @@ func loadTemplates(file string, templates map[string]overmapTerrain) error {
 		return err
 	}
 
-	if !bytes.Contains(b, []byte(overmapTerrainTypeID)) {
+	hasContent := bytes.Contains(b, []byte(overmapTerrainTypeID)) || bytes.Contains(b, []byte(overmapLandUseCodeTypeID))
+	if !hasContent {
 		return nil
 	}
 
@@ -389,14 +389,14 @@ func loadTemplates(file string, templates map[string]overmapTerrain) error {
 		return err
 	}
 
-	filteredOvermapTerrains := make([]map[string]interface{}, 0)
+	filteredObjects := make([]map[string]interface{}, 0)
 	for _, t := range temp {
 		if t["type"].(string) == overmapTerrainTypeID {
-			filteredOvermapTerrains = append(filteredOvermapTerrains, t)
+			filteredObjects = append(filteredObjects, t)
 		}
 	}
 
-	filteredText, err := json.Marshal(filteredOvermapTerrains)
+	filteredText, err := json.Marshal(filteredObjects)
 	if err != nil {
 		return err
 	}
@@ -416,6 +416,31 @@ func loadTemplates(file string, templates map[string]overmapTerrain) error {
 		} else {
 			templates[ot.ID] = ot
 		}
+	}
+
+	filteredObjects = make([]map[string]interface{}, 0)
+	for _, t := range temp {
+		if t["type"].(string) == overmapLandUseCodeTypeID {
+			filteredObjects = append(filteredObjects, t)
+		}
+	}
+
+	filteredText, err = json.Marshal(filteredObjects)
+	if err != nil {
+		return err
+	}
+
+	var overmapLandUseCodes []overmapLandUseCode
+	err = json.Unmarshal(filteredText, &overmapLandUseCodes)
+	if err != nil {
+		return err
+	}
+
+	for _, oluc := range overmapLandUseCodes {
+		if oluc.Type != overmapLandUseCodeTypeID {
+			continue
+		}
+		landusecodes[oluc.ID] = oluc
 	}
 
 	return nil

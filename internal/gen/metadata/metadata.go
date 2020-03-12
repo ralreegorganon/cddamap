@@ -168,17 +168,26 @@ func init() {
 	colors["black_yellow"] = ColorPair{FG: black, BG: yellow}
 	colors["blue"] = ColorPair{FG: blue, BG: black}
 	colors["brown"] = ColorPair{FG: brown, BG: black}
+	colors["brown_green"] = ColorPair{FG: brown, BG: green}
+	colors["c_blue_white"] = ColorPair{FG: blue, BG: white}
+	colors["c_light_cyan_magenta"] = ColorPair{FG: lightCyan, BG: magenta}
+	colors["c_red_white"] = ColorPair{FG: red, BG: white}
 	colors["c_yellow_green"] = ColorPair{FG: yellow, BG: green}
+	colors["c_yellow_white"] = ColorPair{FG: yellow, BG: white}
 	colors["cyan"] = ColorPair{FG: cyan, BG: black}
 	colors["dark_gray"] = ColorPair{FG: darkGray, BG: black}
 	colors["dark_gray_magenta"] = ColorPair{FG: darkGray, BG: magenta}
 	colors["green"] = ColorPair{FG: green, BG: black}
+	colors["green_cyan"] = ColorPair{FG: green, BG: cyan}
+	colors["green_yellow"] = ColorPair{FG: green, BG: yellow}
 	colors["h_dark_gray"] = ColorPair{FG: darkGray, BG: black}
 	colors["h_yellow"] = ColorPair{FG: yellow, BG: black}
+	colors["i_black"] = ColorPair{FG: black, BG: white}
 	colors["i_blue"] = ColorPair{FG: black, BG: blue}
 	colors["i_brown"] = ColorPair{FG: black, BG: brown}
 	colors["i_cyan"] = ColorPair{FG: black, BG: cyan}
 	colors["i_green"] = ColorPair{FG: black, BG: green}
+	colors["i_white"] = ColorPair{FG: white, BG: black}
 	colors["i_light_blue"] = ColorPair{FG: black, BG: lightBlue}
 	colors["i_light_cyan"] = ColorPair{FG: black, BG: lightCyan}
 	colors["i_light_gray"] = ColorPair{FG: black, BG: gray}
@@ -192,6 +201,9 @@ func init() {
 	colors["light_cyan"] = ColorPair{FG: lightCyan, BG: black}
 	colors["light_gray"] = ColorPair{FG: gray, BG: black}
 	colors["light_green"] = ColorPair{FG: lightGreen, BG: black}
+	colors["light_green_cyan"] = ColorPair{FG: lightGreen, BG: cyan}
+	colors["light_green_green"] = ColorPair{FG: lightGreen, BG: green}
+	colors["light_green_red"] = ColorPair{FG: lightGreen, BG: red}
 	colors["light_green_yellow"] = ColorPair{FG: lightGreen, BG: yellow}
 	colors["light_red"] = ColorPair{FG: lightRed, BG: black}
 	colors["magenta"] = ColorPair{FG: magenta, BG: black}
@@ -204,9 +216,6 @@ func init() {
 	colors["yellow"] = ColorPair{FG: yellow, BG: black}
 	colors["yellow_cyan"] = ColorPair{FG: yellow, BG: cyan}
 	colors["yellow_magenta"] = ColorPair{FG: yellow, BG: magenta}
-	colors["green_yellow"] = ColorPair{FG: green, BG: yellow}
-	colors["green_cyan"] = ColorPair{FG: green, BG: cyan}
-	colors["light_green_green"] = ColorPair{FG: lightGreen, BG: green}
 	colors["unset"] = ColorPair{FG: white, BG: black}
 }
 

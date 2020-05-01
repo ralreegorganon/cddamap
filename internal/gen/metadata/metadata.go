@@ -254,7 +254,7 @@ func (o Overmap) Color(id string, landUseCode bool) (color.RGBA, color.RGBA) {
 			if cp, ok := colors[c.Color]; ok {
 				return cp.FG, cp.BG
 			}
-			fmt.Printf("missing terrain color for: %#v\n", c.Color)
+			fmt.Printf("missing terrain color for: %#v from %v\n", c.Color, id)
 		}
 		if luc, lucok := o.landusecodes[c.LandUseCode]; lucok {
 			if cp, ok := colors[luc.Color]; ok {
@@ -405,7 +405,41 @@ func loadTemplates(file string, templates map[string]overmapTerrain, landusecode
 		}
 	}
 
-	filteredText, err := json.Marshal(filteredObjects)
+	expandedOvermapTerrains := make([]map[string]interface{}, 0)
+	for _, t := range filteredObjects {
+		switch x := t["id"].(type) {
+		case string:
+			expandedOvermapTerrains = append(expandedOvermapTerrains, t)
+		case []interface{}:
+			for _, id := range x {
+				b := make(map[string]interface{})
+				byt, err := json.Marshal(t)
+				if err != nil {
+					return err
+				}
+				json.Unmarshal(byt, &b)
+				b["id"] = id
+				expandedOvermapTerrains = append(expandedOvermapTerrains, b)
+			}
+		}
+		switch x := t["abstract"].(type) {
+		case string:
+			expandedOvermapTerrains = append(expandedOvermapTerrains, t)
+		case []interface{}:
+			for _, id := range x {
+				b := make(map[string]interface{})
+				byt, err := json.Marshal(t)
+				if err != nil {
+					return err
+				}
+				json.Unmarshal(byt, &b)
+				b["abstract"] = id
+				expandedOvermapTerrains = append(expandedOvermapTerrains, b)
+			}
+		}
+	}
+
+	filteredText, err := json.Marshal(expandedOvermapTerrains)
 	if err != nil {
 		return err
 	}

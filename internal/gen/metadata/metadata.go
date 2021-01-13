@@ -21,7 +21,6 @@ type overmapTerrain struct {
 	ID          string   `json:"id"`
 	Type        string   `json:"type"`
 	Abstract    string   `json:"abstract"`
-	Name        string   `json:"name"`
 	Sym         string   `json:"sym"`
 	Color       string   `json:"color"`
 	LandUseCode string   `json:"land_use_code"`
@@ -166,20 +165,21 @@ func init() {
 	colors = make(map[string]ColorPair)
 
 	colors["black_yellow"] = ColorPair{FG: black, BG: yellow}
+	colors["blue_white"] = ColorPair{FG: blue, BG: white}
 	colors["blue"] = ColorPair{FG: blue, BG: black}
-	colors["brown"] = ColorPair{FG: brown, BG: black}
 	colors["brown_green"] = ColorPair{FG: brown, BG: green}
+	colors["brown"] = ColorPair{FG: brown, BG: black}
 	colors["c_blue_white"] = ColorPair{FG: blue, BG: white}
 	colors["c_light_cyan_magenta"] = ColorPair{FG: lightCyan, BG: magenta}
 	colors["c_red_white"] = ColorPair{FG: red, BG: white}
 	colors["c_yellow_green"] = ColorPair{FG: yellow, BG: green}
 	colors["c_yellow_white"] = ColorPair{FG: yellow, BG: white}
 	colors["cyan"] = ColorPair{FG: cyan, BG: black}
-	colors["dark_gray"] = ColorPair{FG: darkGray, BG: black}
 	colors["dark_gray_magenta"] = ColorPair{FG: darkGray, BG: magenta}
-	colors["green"] = ColorPair{FG: green, BG: black}
+	colors["dark_gray"] = ColorPair{FG: darkGray, BG: black}
 	colors["green_cyan"] = ColorPair{FG: green, BG: cyan}
 	colors["green_yellow"] = ColorPair{FG: green, BG: yellow}
+	colors["green"] = ColorPair{FG: green, BG: black}
 	colors["h_dark_gray"] = ColorPair{FG: darkGray, BG: black}
 	colors["h_yellow"] = ColorPair{FG: yellow, BG: black}
 	colors["i_black"] = ColorPair{FG: black, BG: white}
@@ -187,7 +187,6 @@ func init() {
 	colors["i_brown"] = ColorPair{FG: black, BG: brown}
 	colors["i_cyan"] = ColorPair{FG: black, BG: cyan}
 	colors["i_green"] = ColorPair{FG: black, BG: green}
-	colors["i_white"] = ColorPair{FG: white, BG: black}
 	colors["i_light_blue"] = ColorPair{FG: black, BG: lightBlue}
 	colors["i_light_cyan"] = ColorPair{FG: black, BG: lightCyan}
 	colors["i_light_gray"] = ColorPair{FG: black, BG: gray}
@@ -196,27 +195,32 @@ func init() {
 	colors["i_magenta"] = ColorPair{FG: black, BG: magenta}
 	colors["i_pink"] = ColorPair{FG: black, BG: lightMagenta}
 	colors["i_red"] = ColorPair{FG: black, BG: red}
+	colors["i_white"] = ColorPair{FG: white, BG: black}
 	colors["i_yellow"] = ColorPair{FG: black, BG: yellow}
 	colors["light_blue"] = ColorPair{FG: lightBlue, BG: black}
+	colors["light_cyan_magenta"] = ColorPair{FG: lightCyan, BG: magenta}
 	colors["light_cyan"] = ColorPair{FG: lightCyan, BG: black}
 	colors["light_gray"] = ColorPair{FG: gray, BG: black}
-	colors["light_green"] = ColorPair{FG: lightGreen, BG: black}
 	colors["light_green_cyan"] = ColorPair{FG: lightGreen, BG: cyan}
 	colors["light_green_green"] = ColorPair{FG: lightGreen, BG: green}
 	colors["light_green_red"] = ColorPair{FG: lightGreen, BG: red}
 	colors["light_green_yellow"] = ColorPair{FG: lightGreen, BG: yellow}
+	colors["light_green"] = ColorPair{FG: lightGreen, BG: black}
 	colors["light_red"] = ColorPair{FG: lightRed, BG: black}
 	colors["magenta"] = ColorPair{FG: magenta, BG: black}
-	colors["pink"] = ColorPair{FG: lightMagenta, BG: black}
 	colors["pink_magenta"] = ColorPair{FG: lightMagenta, BG: magenta}
+	colors["pink"] = ColorPair{FG: lightMagenta, BG: black}
+	colors["red_white"] = ColorPair{FG: red, BG: white}
 	colors["red"] = ColorPair{FG: red, BG: black}
-	colors["white"] = ColorPair{FG: white, BG: black}
+	colors["unset"] = ColorPair{FG: white, BG: black}
 	colors["white_magenta"] = ColorPair{FG: white, BG: magenta}
 	colors["white_white"] = ColorPair{FG: white, BG: white}
-	colors["yellow"] = ColorPair{FG: yellow, BG: black}
+	colors["white"] = ColorPair{FG: white, BG: black}
 	colors["yellow_cyan"] = ColorPair{FG: yellow, BG: cyan}
+	colors["yellow_green"] = ColorPair{FG: yellow, BG: green}
 	colors["yellow_magenta"] = ColorPair{FG: yellow, BG: magenta}
-	colors["unset"] = ColorPair{FG: white, BG: black}
+	colors["yellow_white"] = ColorPair{FG: yellow, BG: white}
+	colors["yellow"] = ColorPair{FG: yellow, BG: black}
 }
 
 type Overmap struct {
@@ -266,13 +270,6 @@ func (o Overmap) Color(id string, landUseCode bool) (color.RGBA, color.RGBA) {
 
 	unset := colors["unset"]
 	return unset.FG, unset.BG
-}
-
-func (o Overmap) Name(id string) string {
-	if t, tok := o.built[id]; tok {
-		return t.Name
-	}
-	return "?"
 }
 
 func Build(save save.Save, gameRoot string) (Overmap, error) {

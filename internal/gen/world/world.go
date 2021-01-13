@@ -316,13 +316,11 @@ func buildTerrainLayers(m metadata.Overmap, s save.Save, tcl map[uint32]TerrainC
 				if !ok {
 					s := m.Symbol(e.OvermapTerrainID, symbolizeByLandUseCode)
 					cfg, cbg := m.Color(e.OvermapTerrainID, symbolizeByLandUseCode)
-					n := m.Name(e.OvermapTerrainID)
 					tc := TerrainCell{
 						ID:      e.OvermapTerrainID,
 						Symbol:  s,
 						ColorFG: cfg,
 						ColorBG: cbg,
-						Name:    n,
 					}
 					tcl[h] = tc
 				}

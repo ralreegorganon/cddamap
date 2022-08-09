@@ -189,6 +189,9 @@ func buildCityLayer(m metadata.Overmap, s save.Save) CityLayer {
 			cities = append(cities, ce)
 
 			nameStart := ci*32400 + city.Y*180 + city.X - len(city.Name)/2
+			if nameStart < 0 {
+				nameStart = 0
+			}
 			for i := 0; i < len(city.Name); i++ {
 				cells[nameStart+i] = string(city.Name[i])
 			}

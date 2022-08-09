@@ -137,7 +137,7 @@ func overmapFromSave(save, filter string) (Overmap, error) {
 
 		lines := strings.Split(string(t), "\n")
 
-		if !strings.HasPrefix(lines[0], "# version 31") {
+		if !strings.HasPrefix(lines[0], "# version 33") {
 			return o, fmt.Errorf("unsupported version: %v", lines[0])
 		}
 
@@ -231,7 +231,7 @@ func characterSeenFromSave(save, filter string) (map[string]Seen, error) {
 
 		lines := strings.Split(string(t), "\n")
 
-		if !strings.HasPrefix(lines[0], "# version 31") {
+		if !strings.HasPrefix(lines[0], "# version 33") {
 			return s, fmt.Errorf("unsupported version: %v", lines[0])
 		}
 
